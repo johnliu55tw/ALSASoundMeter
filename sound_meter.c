@@ -69,13 +69,32 @@ double rms(short *buffer)
 /*
    Show the sound level and its peak value
 */
-void show(int dB, int peak)
+void show(int Pvalue, int peak)
 {
     int j;
+    int dB;
+    int dBpeak;
+
     for(j=0; j<13; j++)
         printf("\b");
     fflush(stdout);
-    printf("dB=%d,Peak=%d", dB, peak);
+
+    if(Pvalue > 0)
+    {
+        dB = (int)20 * log10(Pvalue);
+        printf("dB=%d,", dB);
+    }
+    else
+        printf("dB=--,");
+
+    if(peak > 0)
+    {
+        dBpeak = (int)20 * log10(peak);
+        printf("Peak=%d", dBpeak);
+    }
+    else
+        printf("Peak=--", dB, peak);
+
     fflush(stdout);
 }
 
@@ -110,8 +129,7 @@ int main(void)
     */
     double k = 0.45255;
     double Pvalue = 0;
-    int dB = 0;
-    int peak = 0;
+    double peak = 0;
 
     // Capture
     while(1) {
@@ -132,11 +150,10 @@ int main(void)
         
         // Successfully read, calculate dB and update peak value
         Pvalue = rms(buffer) * k;
-        dB = (int)20 * log10(Pvalue);
-        if(dB > peak)
-            peak = dB;
+        if(Pvalue > peak)
+            peak = Pvalue;
         
-        show(dB, peak);
+        show(Pvalue, peak);
     }
     printf("\n");
     snd_pcm_close(handle_capture);
